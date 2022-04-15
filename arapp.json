@@ -1,16 +1,5 @@
 {
-  "roles": [
-    {
-      "name": "Increment the counter",
-      "id": "INCREMENT_ROLE",
-      "params": []
-    },
-    {
-      "name": "Decrement the counter",
-      "id": "DECREMENT_ROLE",
-      "params": []
-    }
-  ],
+  "path": "contracts/Voting.sol",
   "environments": {
     "default": {
       "appName": "custom-voting.aragonpm.eth",
@@ -32,6 +21,21 @@
       "network": "mainnet"
     }
   },
-  "appName": "custom-voting.aragonpm.eth",
-  "path": "contracts/CounterApp.sol"
+  "roles": [
+    {
+      "name": "Create new votes",
+      "id": "CREATE_VOTES_ROLE",
+      "params": []
+    },
+    {
+      "name": "Modify support",
+      "id": "MODIFY_SUPPORT_ROLE",
+      "params": ["New support", "Current support"]
+    },
+    {
+      "name": "Modify quorum",
+      "id": "MODIFY_QUORUM_ROLE",
+      "params": ["New quorum", "Current quorum"]
+    }
+  ]
 }

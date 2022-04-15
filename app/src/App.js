@@ -1,89 +1,135 @@
-import React, { useCallback } from "react"
-import { useAragonApi } from "@aragon/api-react"
+import React, { useCallback } from 'react'
 import {
-  Box,
   Button,
-  GU,
   Header,
-  IconMinus,
   IconPlus,
   Main,
   SyncIndicator,
-  Tabs,
-  Text,
-  textStyle,
-} from "@aragon/ui"
+  useLayout,
+} from '@aragon/ui'
+import { useGuiStyle } from '@aragon/api-react'
+import NewVotePanel from './components/NewVotePanel'
+import useFilterVotes from './hooks/useFilterVotes'
+import useScrollTop from './hooks/useScrollTop'
+import NoVotes from './screens/NoVotes'
+import VoteDetail from './screens/VoteDetail'
+import Votes from './screens/Votes'
+import { useAppLogic } from './app-logic'
+import { IdentityProvider } from './identity-manager'
+import { SettingsProvider } from './vote-settings-manager'
 
-function App() {
-  // const [apps, appStatus] = useApps()
-  const { api, appState, path, requestPath } = useAragonApi()
-  // const asd = useAragonApi()
-  const { count, isSyncing } = appState
+const App = React.memo(function App() {
+  const {
+    actions,
+    executionTargets,
+    isSyncing,
+    newVotePanel,
+    selectVote,
+    selectedVote,
+    votes,
+  } = useAppLogic()
 
-  const pathParts = path.match(/^\/tab\/([0-9]+)/)
-  const pageIndex = Array.isArray(pathParts)
-    ? parseInt(pathParts[1], 10) - 1
-    : 0
+  const { appearance } = useGuiStyle()
 
-  const saludar = useCallback(async () => {
-    console.log(api)
-    const d = await api.call("saludar").toPromise()
-    console.log(d)
-  }, [api])
+  const { layoutName } = useLayout()
+  const compactMode = layoutName === 'small'
+  const handleBack = useCallback(() => selectVote(-1), [selectVote])
+
+  const {
+    filteredVotes,
+    voteStatusFilter,
+    handleVoteStatusFilterChange,
+    voteOutcomeFilter,
+    handleVoteOutcomeFilterChange,
+    voteTrendFilter,
+    handleVoteTrendFilterChange,
+    voteAppFilter,
+    handleVoteAppFilterChange,
+    voteDateRangeFilter,
+    handleVoteDateRangeFilterChange,
+    handleClearFilters,
+  } = useFilterVotes(votes, executionTargets)
+
+  useScrollTop(selectedVote)
 
   return (
-    <Main>
-      {isSyncing && <SyncIndicator />}
-      <Header
-        primary="Counter"
-        secondary={
-          <span
+    <Main theme={appearance} assetsUrl="./aragon-ui">
+      <React.Fragment>
+        {votes.length === 0 && (
+          <div
             css={`
-              ${textStyle("title2")}
+              height: 100vh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
             `}
           >
-            {count}
-          </span>
-        }
-      />
-      {/* {console.log((async () => await asdd())())} */}
-      {/* {console.log(asd)} */}
-      <Tabs
-        items={["Tab 1", "Tab 2"]}
-        selected={pageIndex}
-        onChange={(index) => requestPath(`/tab/${index + 1}`)}
-      />
-      <Box
-        css={`
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          height: ${50 * GU}px;
-          ${textStyle("title3")};
-        `}
-      >
-        Count: {count} asdas
-        <div>
-          <Button
-            display="icon"
-            icon={<IconMinus />}
-            label="Decrement"
-            onClick={saludar}
-          />
-          <Button
-            display="icon"
-            icon={<IconPlus />}
-            label="Increment"
-            onClick={() => api.increment(1).toPromise()}
-            css={`
-              margin-left: ${2 * GU}px;
-            `}
-          />
-        </div>
-      </Box>
+            <NoVotes
+              onNewVote={newVotePanel.requestOpen}
+              isSyncing={isSyncing}
+            />
+          </div>
+        )}
+        {votes.length > 0 && (
+          <React.Fragment>
+            <SyncIndicator visible={isSyncing} shift={50} />
+            <Header
+              primary="Voting"
+              secondary={
+                !selectedVote && (
+                  <Button
+                    mode="strong"
+                    onClick={newVotePanel.requestOpen}
+                    label="New vote"
+                    icon={<IconPlus />}
+                    display={compactMode ? 'icon' : 'label'}
+                  />
+                )
+              }
+            />
+            {selectedVote ? (
+              <VoteDetail
+                vote={selectedVote}
+                onBack={handleBack}
+                onVote={actions.vote}
+                onExecute={actions.execute}
+              />
+            ) : (
+              <Votes
+                votes={votes}
+                selectVote={selectVote}
+                executionTargets={executionTargets}
+                filteredVotes={filteredVotes}
+                voteStatusFilter={voteStatusFilter}
+                handleVoteStatusFilterChange={handleVoteStatusFilterChange}
+                voteOutcomeFilter={voteOutcomeFilter}
+                handleVoteOutcomeFilterChange={handleVoteOutcomeFilterChange}
+                voteTrendFilter={voteTrendFilter}
+                handleVoteTrendFilterChange={handleVoteTrendFilterChange}
+                voteAppFilter={voteAppFilter}
+                handleVoteAppFilterChange={handleVoteAppFilterChange}
+                voteDateRangeFilter={voteDateRangeFilter}
+                handleVoteDateRangeFilterChange={
+                  handleVoteDateRangeFilterChange
+                }
+                handleClearFilters={handleClearFilters}
+              />
+            )}
+          </React.Fragment>
+        )}
+        <NewVotePanel
+          onCreateVote={actions.createVote}
+          panelState={newVotePanel}
+        />
+      </React.Fragment>
     </Main>
   )
-}
+})
 
-export default App
+export default () => (
+  <IdentityProvider>
+    <SettingsProvider>
+      <App />
+    </SettingsProvider>
+  </IdentityProvider>
+)
