@@ -1,5 +1,5 @@
-import React from 'react'
-import { useAragonApi } from '@aragon/api-react'
+import React, { useCallback } from "react"
+import { useAragonApi } from "@aragon/api-react"
 import {
   Box,
   Button,
@@ -12,16 +12,24 @@ import {
   Tabs,
   Text,
   textStyle,
-} from '@aragon/ui'
+} from "@aragon/ui"
 
 function App() {
+  // const [apps, appStatus] = useApps()
   const { api, appState, path, requestPath } = useAragonApi()
+  // const asd = useAragonApi()
   const { count, isSyncing } = appState
 
   const pathParts = path.match(/^\/tab\/([0-9]+)/)
   const pageIndex = Array.isArray(pathParts)
     ? parseInt(pathParts[1], 10) - 1
     : 0
+
+  const saludar = useCallback(async () => {
+    console.log(api)
+    const d = await api.call("saludar").toPromise()
+    console.log(d)
+  }, [api])
 
   return (
     <Main>
@@ -31,15 +39,17 @@ function App() {
         secondary={
           <span
             css={`
-              ${textStyle('title2')}
+              ${textStyle("title2")}
             `}
           >
             {count}
           </span>
         }
       />
+      {/* {console.log((async () => await asdd())())} */}
+      {/* {console.log(asd)} */}
       <Tabs
-        items={['Tab 1', 'Tab 2']}
+        items={["Tab 1", "Tab 2"]}
         selected={pageIndex}
         onChange={(index) => requestPath(`/tab/${index + 1}`)}
       />
@@ -50,7 +60,7 @@ function App() {
           justify-content: center;
           text-align: center;
           height: ${50 * GU}px;
-          ${textStyle('title3')};
+          ${textStyle("title3")};
         `}
       >
         Count: {count} asdas
@@ -59,7 +69,7 @@ function App() {
             display="icon"
             icon={<IconMinus />}
             label="Decrement"
-            onClick={() => api.decrement(1).toPromise()}
+            onClick={saludar}
           />
           <Button
             display="icon"

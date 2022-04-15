@@ -3,20 +3,20 @@
   "version": "1.0.0",
   "main": "src/index.js",
   "dependencies": {
-    "@aragon/api": "^2.0.0",
-    "@aragon/api-react": "^2.0.0",
-    "@aragon/ui": "^1.4.2",
-    "core-js": "^3.21.1",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
-    "regenerator-runtime": "^0.13.5",
-    "styled-components": "^5.1.1"
+    "@aragon/api": "2.2.3",
+    "@aragon/api-react": "2.2.4",
+    "@aragon/ui": "1.9.3",
+    "core-js": "3.22.0",
+    "react": "16.8.0",
+    "react-dom": "16.8.0",
+    "regenerator-runtime": "0.13.9",
+    "styled-components": "5.3.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.10.2",
-    "@babel/preset-env": "^7.10.2",
-    "copyfiles": "^2.2.0",
-    "parcel-bundler": "^1.12.4"
+    "@babel/core": "7.17.9",
+    "@babel/preset-env": "7.16.11",
+    "copyfiles": "2.4.1",
+    "parcel-bundler": "1.12.5"
   },
   "scripts": {
     "build": "yarn sync-assets && yarn build:app && yarn build:script",

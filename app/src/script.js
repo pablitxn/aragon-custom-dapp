@@ -1,6 +1,6 @@
-import 'core-js/stable'
-import 'regenerator-runtime/runtime'
-import Aragon, { events } from '@aragon/api'
+import "core-js/stable"
+import "regenerator-runtime/runtime"
+import Aragon, { events } from "@aragon/api"
 
 const app = new Aragon()
 
@@ -12,10 +12,16 @@ app.store(
 
     try {
       switch (event) {
-        case 'Increment':
+        case "Increment":
           return { ...nextState, count: await getValue() }
-        case 'Decrement':
+        case "Decrement":
           return { ...nextState, count: await getValue() }
+        case "Saludar":
+          return {
+            ...nextState,
+            count: await getValue(),
+            saludo: await getSaludo(),
+          }
         case events.SYNC_STATUS_SYNCING:
           return { ...nextState, isSyncing: true }
         case events.SYNC_STATUS_SYNCED:
@@ -39,7 +45,7 @@ app.store(
  ***********************/
 
 function initializeState() {
-  return async cachedState => {
+  return async (cachedState) => {
     return {
       ...cachedState,
       count: await getValue(),
@@ -48,5 +54,11 @@ function initializeState() {
 }
 
 async function getValue() {
-  return parseInt(await app.call('value').toPromise(), 10)
+  return parseInt(await app.call("value").toPromise(), 10)
+}
+
+async function getSaludo() {
+  const a = await app.call("saludar").toPromise()
+  const b = await app.saludar().toPromise()
+  return { a, b }
 }

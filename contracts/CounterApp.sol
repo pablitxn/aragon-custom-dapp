@@ -28,7 +28,7 @@ contract CounterApp is AragonApp {
      * @param step Amount to increment by
      */
     function increment(uint256 step) external auth(INCREMENT_ROLE) {
-        value = value.add(step);
+        value = value.add(10000);
         emit Increment(msg.sender, step);
     }
 
@@ -39,5 +39,14 @@ contract CounterApp is AragonApp {
     function decrement(uint256 step) external auth(DECREMENT_ROLE) {
         value = value.sub(step);
         emit Decrement(msg.sender, step);
+    }
+
+    function saludachi() public returns (string) {
+        this.increment(100);
+        return "sodyq2";
+    }
+
+    function saludar() external returns (string) {
+        return this.saludachi();
     }
 }
