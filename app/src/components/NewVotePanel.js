@@ -9,7 +9,6 @@ import {
   TextInput,
   useSidePanelFocusOnReady,
 } from '@aragon/ui'
-import MultiTokenSelector from './TokenSelector/MultiTokenSelector'
 
 const NewVotePanel = React.memo(function NewVotePanel({
   panelState,
@@ -28,6 +27,9 @@ const NewVotePanel = React.memo(function NewVotePanel({
 
 function NewVotePanelContent({ onCreateVote }) {
   const [question, setQuestion] = useState('')
+  const [whitelistState, setWhitelistState] = useState([
+    { id: 'owner', value: '' },
+  ])
 
   const inputRef = useSidePanelFocusOnReady()
 
@@ -41,6 +43,25 @@ function NewVotePanelContent({ onCreateVote }) {
 
   const handleQuestionChange = useCallback(event => {
     setQuestion(event.target.value)
+  }, [])
+
+  const handleWhiteListChanges = useCallback(event => {
+    const { id, value } = event.target
+
+    setWhitelistState(prev =>
+      prev.map(input => {
+        if (input.id === id) return { ...input, value }
+        return input
+      })
+    )
+  }, [])
+
+  const handleNewAddresses = useCallback(() => {
+    const newID = Math.random()
+      .toString(36)
+      .substring(2, 15)
+
+    setWhitelistState(prev => [...prev, { id: newID, value: '' }])
   }, [])
 
   return (
@@ -60,14 +81,22 @@ function NewVotePanelContent({ onCreateVote }) {
             wide
           />
         </Field>
-        <Field label="White List">
-          <MultiTokenSelector
-            onAddToken={() => {}}
-            onRemoveToken={() => {}}
-            onUpdateToken={() => {}}
-            tokens={[]}
-            items={[]}
-          />
+        <Field
+          label="White List"
+          style={{ display: 'flex', flexDirection: 'column' }}
+        >
+          {whitelistState.map(({ id, value }) => (
+            <input
+              key={id}
+              id={id}
+              value={value}
+              onChange={handleWhiteListChanges}
+              placeholder={`Enter ${id}`}
+            />
+          ))}
+          <button type="button" onClick={handleNewAddresses}>
+            add new address
+          </button>
         </Field>
         <div
           css={`

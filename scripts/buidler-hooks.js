@@ -21,7 +21,10 @@ module.exports = {
   postDao: async (
     { dao, _experimentalAppInstaller, log },
     { web3, artifacts }
-  ) => {},
+  ) => {
+    console.log(dao)
+    console.log(_experimentalAppInstaller)
+  },
 
   // Called after the app's proxy is created, but before it's initialized.
   preInit: async (
@@ -37,17 +40,31 @@ module.exports = {
 
   // Called when the start task needs to know the app proxy's init parameters.
   // Must return an array with the proxy's init parameters.
-  getInitParams: async function ({}, bre) {
+  getInitParams: async ({}, bre) => {
     const bigExp = (x, y) =>
       bre.web3.utils
         .toBN(x)
         .mul(bre.web3.utils.toBN(10).pow(bre.web3.utils.toBN(y)))
     pct16 = (x) => bigExp(x, 16)
 
-    const minime = await _deployMinimeToken(bre)
+    const MiniMeTokenFactory = await bre.artifacts.require("MiniMeTokenFactory")
+    const MiniMeToken = await bre.artifacts.require("MiniMeToken")
+    const factory = await MiniMeTokenFactory.new()
+    const token = await MiniMeToken.new(
+      factory.address,
+      ZERO_ADDRESS,
+      0,
+      "MiniMe Test Token",
+      18,
+      "MMT",
+      true
+    )
+
+    const myAccount = "0xb4124cEB3451635DAcedd11767f004d8a28c6eE7"
+    const amount = pct16(1)
 
     return [
-      minime.address,
+      token.address,
       pct16(50), // support 50%
       pct16(25), // quorum 15%
       604800, // 7 days,
@@ -56,20 +73,4 @@ module.exports = {
 
   // Called after the app's proxy is updated with a new implementation.
   postUpdate: async ({ proxy, log }, { web3, artifacts }) => {},
-}
-
-async function _deployMinimeToken(bre) {
-  const MiniMeTokenFactory = await bre.artifacts.require("MiniMeTokenFactory")
-  const MiniMeToken = await bre.artifacts.require("MiniMeToken")
-  const factory = await MiniMeTokenFactory.new()
-  const token = await MiniMeToken.new(
-    factory.address,
-    ZERO_ADDRESS,
-    0,
-    "MiniMe Test Token",
-    18,
-    "MMT",
-    true
-  )
-  return token
 }
